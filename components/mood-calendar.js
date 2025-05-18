@@ -183,7 +183,7 @@ export default function MoodCalendar({ moods, onDateSelect, selectedDate }) {
       </AnimatePresence>
 
       <motion.div
-        className="mt-8 p-4 bg-purple-50 rounded-lg"
+        className="mt-8 p-4 bg-rose-100 rounded-lg"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
@@ -194,35 +194,35 @@ export default function MoodCalendar({ moods, onDateSelect, selectedDate }) {
             <>
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-yellow-400 mr-2 shadow-sm"></div>
-                <span>Happy</span>
+                <span className="text-black">Happy</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-orange-400 mr-2 shadow-sm"></div>
-                <span>Excited</span>
+                <span className="text-black">Excited</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-green-400 mr-2 shadow-sm"></div>
-                <span>Grateful</span>
+                <span className="text-black">Grateful</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-blue-400 mr-2 shadow-sm"></div>
-                <span>Relaxed</span>
+                <span className="text-black">Relaxed</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-gray-400 mr-2 shadow-sm"></div>
-                <span>Neutral</span>
+                <span className="text-black">Neutral</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-indigo-400 mr-2 shadow-sm"></div>
-                <span>Sad</span>
+                <span className="text-black">Sad</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-red-400 mr-2 shadow-sm"></div>
-                <span>Angry</span>
+                <span className="text-black">Angry</span>
               </div>
               <div className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-purple-400 mr-2 shadow-sm"></div>
-                <span>Stressed</span>
+                <span className="text-black">Stressed</span>
               </div>
             </>
           ) : (
