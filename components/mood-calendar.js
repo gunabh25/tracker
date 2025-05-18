@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react"
 import { formatDate, isSameDay } from "@/lib/utils"
 
 export default function MoodCalendar({ moods, onDateSelect, selectedDate }) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [direction, setDirection] = useState(0)
 
   // Reset to current month when component mounts
   useEffect(() => {
@@ -13,14 +15,17 @@ export default function MoodCalendar({ moods, onDateSelect, selectedDate }) {
   }, [])
 
   const prevMonth = () => {
+    setDirection(-1)
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))
   }
 
   const nextMonth = () => {
+    setDirection(1)
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))
   }
 
   const goToToday = () => {
+    setDirection(0)
     setCurrentMonth(new Date())
     onDateSelect(new Date())
   }
@@ -70,25 +75,64 @@ export default function MoodCalendar({ moods, onDateSelect, selectedDate }) {
     return `has-mood mood-${mood}`
   }
 
+  const variants = {
+    enter: (direction) => {
+      return {
+        x: direction > 0 ? 1000 : -1000,
+        opacity: 0,
+      }
+    },
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction) => {
+      return {
+        x: direction < 0 ? 1000 : -1000,
+        opacity: 0,
+      }
+    },
+  }
+
   return (
     <div className="calendar">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">
+      <div className="flex justify-between items-center mb-6">
+        <motion.h3
+          className="text-lg font-medium flex items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Calendar className="w-5 h-5 mr-2 text-purple-500" />
           {currentMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
-        </h3>
+        </motion.h3>
         <div className="flex space-x-2">
-          <button onClick={prevMonth} className="p-2 rounded-full hover:bg-gray-100" aria-label="Previous month">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
+          <motion.button
+            onClick={prevMonth}
+            className="p-2 rounded-full hover:bg-purple-100 transition-colors"
+            aria-label="Previous month"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <ChevronLeft className="w-5 h-5 text-purple-600" />
+          </motion.button>
+          <motion.button
             onClick={goToToday}
-            className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200"
+            className="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Today
-          </button>
-          <button onClick={nextMonth} className="p-2 rounded-full hover:bg-gray-100" aria-label="Next month">
-            <ChevronRight className="w-5 h-5" />
-          </button>
+          </motion.button>
+          <motion.button
+            onClick={nextMonth}
+            className="p-2 rounded-full hover:bg-purple-100 transition-colors"
+            aria-label="Next month"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <ChevronRight className="w-5 h-5 text-purple-600" />
+          </motion.button>
         </div>
       </div>
 
@@ -100,61 +144,99 @@ export default function MoodCalendar({ moods, onDateSelect, selectedDate }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
-        {days.map((day, index) => (
-          <div key={index} className="aspect-square flex items-center justify-center">
-            {day ? (
-              <button
-                className={`calendar-day ${getMoodClass(day)} ${isSameDay(day, selectedDate) ? "selected" : ""}`}
-                onClick={() => onDateSelect(day)}
-                aria-label={day.toLocaleDateString()}
-              >
-                {day.getDate()}
-              </button>
-            ) : (
-              <div className="w-10 h-10"></div>
-            )}
+      <AnimatePresence mode="wait" custom={direction}>
+        <motion.div
+          key={currentMonth.getMonth() + "-" + currentMonth.getFullYear()}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{
+            x: { type: "spring", stiffness: 300, damping: 30 },
+            opacity: { duration: 0.2 },
+          }}
+        >
+          <div className="grid grid-cols-7 gap-1">
+            {days.map((day, index) => (
+              <div key={index} className="aspect-square flex items-center justify-center">
+                {day ? (
+                  <motion.button
+                    className={`calendar-day ${getMoodClass(day)} ${isSameDay(day, selectedDate) ? "selected" : ""}`}
+                    onClick={() => onDateSelect(day)}
+                    aria-label={day.toLocaleDateString()}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.01 }}
+                  >
+                    {day.getDate()}
+                  </motion.button>
+                ) : (
+                  <div className="w-10 h-10"></div>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </motion.div>
+      </AnimatePresence>
 
-      <div className="mt-6">
-        <h4 className="text-sm font-medium mb-2">Mood Legend</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-yellow-400 mr-2"></div>
-            <span>Happy</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-orange-400 mr-2"></div>
-            <span>Excited</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-green-400 mr-2"></div>
-            <span>Grateful</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-blue-400 mr-2"></div>
-            <span>Relaxed</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-gray-400 mr-2"></div>
-            <span>Neutral</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-indigo-400 mr-2"></div>
-            <span>Sad</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-red-400 mr-2"></div>
-            <span>Angry</span>
-          </div>
-          <div className="flex items-center">
-            <div className="w-4 h-4 rounded-full bg-purple-400 mr-2"></div>
-            <span>Stressed</span>
-          </div>
+      <motion.div
+        className="mt-8 p-4 bg-purple-50 rounded-lg"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <h4 className="text-sm font-medium mb-3 text-purple-700">Mood Legend</h4>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+          {moods && Object.keys(moods).length > 0 ? (
+            <>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-yellow-400 mr-2 shadow-sm"></div>
+                <span>Happy</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-orange-400 mr-2 shadow-sm"></div>
+                <span>Excited</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-green-400 mr-2 shadow-sm"></div>
+                <span>Grateful</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-blue-400 mr-2 shadow-sm"></div>
+                <span>Relaxed</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-gray-400 mr-2 shadow-sm"></div>
+                <span>Neutral</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-indigo-400 mr-2 shadow-sm"></div>
+                <span>Sad</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-red-400 mr-2 shadow-sm"></div>
+                <span>Angry</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 rounded-full bg-purple-400 mr-2 shadow-sm"></div>
+                <span>Stressed</span>
+              </div>
+            </>
+          ) : (
+            <motion.p
+              className="col-span-4 text-gray-500 italic"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
+              No moods recorded yet. Select a date and mood to get started!
+            </motion.p>
+          )}
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }
