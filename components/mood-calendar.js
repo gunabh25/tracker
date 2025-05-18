@@ -9,7 +9,7 @@ export default function MoodCalendar({ moods, onDateSelect, selectedDate }) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [direction, setDirection] = useState(0)
 
-  // Reset to current month when component mounts
+ 
   useEffect(() => {
     setCurrentMonth(new Date())
   }, [])
@@ -30,31 +30,31 @@ export default function MoodCalendar({ moods, onDateSelect, selectedDate }) {
     onDateSelect(new Date())
   }
 
-  // Generate calendar days
+  
   const generateCalendarDays = () => {
     const year = currentMonth.getFullYear()
     const month = currentMonth.getMonth()
 
-    // First day of the month
+    
     const firstDay = new Date(year, month, 1)
-    // Last day of the month
+    
     const lastDay = new Date(year, month + 1, 0)
 
-    // Day of the week for the first day (0 = Sunday, 6 = Saturday)
+    
     const firstDayOfWeek = firstDay.getDay()
 
-    // Total days in the month
+    
     const daysInMonth = lastDay.getDate()
 
-    // Array to hold all calendar days
+    
     const days = []
 
-    // Add empty cells for days before the first day of the month
+   
     for (let i = 0; i < firstDayOfWeek; i++) {
       days.push(null)
     }
 
-    // Add days of the month
+   
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(new Date(year, month, day))
     }
